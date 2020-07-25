@@ -2,8 +2,8 @@ const router = require("express").Router();
 const User = require("../models/User");
 const { registerValidation, loginValidation } = require("../validation");
 const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const config = require("../config");
+const { signToken, removeToken } = require("../helpers/jwt-helper");
+const createError = require("http-errors");
 
 router.post("/register", async (req, res) => {
   //validating data
@@ -61,8 +61,25 @@ router.post("/login", async (req, res) => {
   }
 
   //Create jwt token
-  const token = jwt.sign({ _id: user._id }, config.JWT_SECRET);
-  res.header("auth-token", token).send(token);
+  try {
+    const token = await signToken(user._id.toString());
+    res.header("auth-token", token).send(token);
+  } catch (error) {
+    const httpError = createError.InternalServerError(error.message);
+    res.status(httpError.status).send(httpError);
+  }
+});
+
+router.post("/logout", async (req, res) => {
+  const authToken = req.header("auth-token");
+
+  try {
+    await removeToken(authToken);
+    res.send("Logged Out Successfully");
+  } catch (error) {
+    const httpError = createError.InternalServerError(error.message);
+    res.status(httpError.status).send(httpError);
+  }
 });
 
 module.exports = router;
