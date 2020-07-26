@@ -3,6 +3,7 @@ const authRoute = require("./routes/auth");
 const clientRoute = require("./routes/client");
 const mongoose = require("mongoose");
 const config = require("./config");
+const logger = require("./helpers/logger");
 
 const app = express();
 
@@ -12,9 +13,9 @@ mongoose.connect(
   { useNewUrlParser: true, useUnifiedTopology: true },
   (err, msg) => {
     if (err) {
-      console.log(err.message);
+      logger.info(err.message);
     } else {
-      console.log("connected to db");
+      logger.info("connected to Mongo DB");
     }
   }
 );
@@ -27,5 +28,5 @@ app.use("/api/user", authRoute);
 app.use("/api/client", clientRoute);
 
 app.listen(config.PORT, () =>
-  console.log(`Server running on port ${config.PORT}`)
+  logger.info(`Server running on port ${config.PORT}`)
 );

@@ -1,4 +1,5 @@
 const redis = require("redis");
+const logger = require("./logger");
 
 const client = redis.createClient({
   port: 32768,
@@ -6,19 +7,20 @@ const client = redis.createClient({
 });
 
 client.on("connect", () => {
-  console.log("Client Connected");
+  logger.info("Client Connected");
 });
 
 client.on("ready", (err) => {
-  console.log("Client connected to redis and ready to use...");
+  logger.info("Client connected to redis and ready to use...");
 });
 
 client.on("error", (err) => {
-  console.log(err.message);
+  logger.error(err.message);
+  client.quit();
 });
 
 client.on("end", (err) => {
-  console.log("Client disconnected from redis");
+  logger.info("Client disconnected from redis");
 });
 
 process.on("SIGINT", () => {
